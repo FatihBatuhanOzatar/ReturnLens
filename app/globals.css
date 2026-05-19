@@ -122,6 +122,20 @@ body::before {
 .hero-step-t { font-family: var(--font-serif); font-size: 17px; font-style: italic; color: var(--ink); line-height: 1.25; }
 .hero-step-d { font-size: 13px; color: var(--ink-mute); margin-top: 4px; line-height: 1.4; }
 
+/* ── History ──────────────────────────────────────────────────────────────── */
+.history-section { padding: 36px 0 0; border-bottom: 0.5px solid var(--rule); }
+.history-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+.history-count { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.04em; }
+.history-list { display: flex; flex-direction: column; }
+.history-item { appearance: none; background: none; border: none; border-top: 0.5px solid var(--rule); padding: 14px 4px; display: grid; grid-template-columns: 42px 1fr 20px; gap: 16px; align-items: center; cursor: pointer; text-align: left; transition: background .15s ease; width: 100%; }
+.history-item:hover { background: var(--paper-deep); }
+.history-score { font-family: var(--font-serif); font-size: 22px; font-style: italic; font-variant-numeric: tabular-nums; text-align: center; line-height: 1; }
+.history-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.history-title { font-family: var(--font-serif); font-size: 15px; color: var(--ink); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-meta { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-mute); letter-spacing: 0.04em; text-transform: uppercase; }
+.history-arrow { color: var(--ink-faint); display: flex; align-items: center; transition: color .15s ease; }
+.history-item:hover .history-arrow { color: var(--accent); }
+
 /* ── Product grid ─────────────────────────────────────────────────────────── */
 .products-section { padding: 64px 0 80px; }
 .products-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 36px; gap: 40px; }

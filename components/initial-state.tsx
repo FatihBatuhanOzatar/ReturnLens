@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Product } from "@/lib/types";
+import type { HistoryEntry } from "@/lib/history";
 import { StripesPlaceholder } from "./ui";
 
 interface CardProps {
@@ -56,12 +57,31 @@ function ProductCard({ product, idx, onAnalyze }: CardProps) {
   );
 }
 
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "az once";
+  if (mins < 60) return `${mins} dk once`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} saat once`;
+  const days = Math.floor(hrs / 24);
+  return `${days} gun once`;
+}
+
+function riskColor(level: string): string {
+  if (level === "dusuk" || level === "düşük") return "risk-low";
+  if (level === "orta") return "risk-mid";
+  return "risk-high";
+}
+
 interface Props {
   products: Product[];
   onAnalyze: (p: Product) => void;
+  history?: HistoryEntry[];
+  onViewReport?: (entry: HistoryEntry) => void;
 }
 
-export function InitialState({ products, onAnalyze }: Props) {
+export function InitialState({ products, onAnalyze, history = [], onViewReport }: Props) {
   const [filter, setFilter] = useState<string>("all");
 
   // marketplace listesini ürünlerden dinamik türet
@@ -114,6 +134,39 @@ export function InitialState({ products, onAnalyze }: Props) {
           </div>
         </div>
       </section>
+
+      {history.length > 0 && onViewReport && (
+        <section className="history-section">
+          <div className="history-head">
+            <div className="section-label">Son Analizler</div>
+            <span className="history-count">{history.length} rapor</span>
+          </div>
+          <div className="history-list">
+            {history.map((entry, i) => (
+              <button
+                key={`${entry.product.id}-${i}`}
+                className="history-item"
+                onClick={() => onViewReport(entry)}
+              >
+                <span className={`history-score ${riskColor(entry.analysis.risk_level)}`}>
+                  {entry.analysis.risk_score}
+                </span>
+                <span className="history-info">
+                  <span className="history-title">{entry.product.title}</span>
+                  <span className="history-meta">
+                    {entry.product.marketplace} · {timeAgo(entry.date)}
+                  </span>
+                </span>
+                <span className="history-arrow">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="products-section">
         <div className="products-head">

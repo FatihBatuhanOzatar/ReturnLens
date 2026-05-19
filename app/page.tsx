@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Product, Analysis } from "@/lib/types";
 import { PRODUCTS } from "@/lib/products";
+import { getHistory, saveToHistory, type HistoryEntry } from "@/lib/history";
 import { NavBar, Footer, RegistrationMarks } from "@/components/ui";
 import { InitialState } from "@/components/initial-state";
 import { LoadingState } from "@/components/loading-state";
@@ -21,6 +22,12 @@ export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [errorInfo, setErrorInfo] = useState<ErrorInfo | null>(null);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+
+  // localStorage'dan gecmisi yukle (client-side only)
+  useEffect(() => {
+    setHistory(getHistory());
+  }, []);
 
   const handleAnalyze = async (product: Product) => {
     setSelectedProduct(product);
@@ -56,6 +63,8 @@ export default function Home() {
 
       const data: { analysis: Analysis } = await res.json();
       setAnalysis(data.analysis);
+      saveToHistory(product, data.analysis);
+      setHistory(getHistory());
       setState("report");
     } catch (e) {
       console.error(e);
@@ -84,6 +93,13 @@ export default function Home() {
     }
   };
 
+  const handleViewReport = (entry: HistoryEntry) => {
+    setSelectedProduct(entry.product);
+    setAnalysis(entry.analysis);
+    setState("report");
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
+
   return (
     <>
       <RegistrationMarks />
@@ -91,7 +107,12 @@ export default function Home() {
         <NavBar />
 
         {state === "select" && (
-          <InitialState products={PRODUCTS} onAnalyze={handleAnalyze} />
+          <InitialState
+            products={PRODUCTS}
+            onAnalyze={handleAnalyze}
+            history={history}
+            onViewReport={handleViewReport}
+          />
         )}
 
         {state === "loading" && selectedProduct && (
