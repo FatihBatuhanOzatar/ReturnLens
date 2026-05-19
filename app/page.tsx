@@ -7,24 +7,30 @@ import { NavBar, Footer, RegistrationMarks } from "@/components/ui";
 import { InitialState } from "@/components/initial-state";
 import { LoadingState } from "@/components/loading-state";
 import { ReportState } from "@/components/report-state";
+import { ErrorState } from "@/components/error-state";
 
 type AppState = "select" | "loading" | "report" | "error";
+
+interface ErrorInfo {
+  statusCode: number;
+  message: string;
+}
 
 export default function Home() {
   const [state, setState] = useState<AppState>("select");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [errorInfo, setErrorInfo] = useState<ErrorInfo | null>(null);
 
   const handleAnalyze = async (product: Product) => {
     setSelectedProduct(product);
     setAnalysis(null);
-    setError(null);
+    setErrorInfo(null);
     setState("loading");
     window.scrollTo({ top: 0, behavior: "instant" });
 
     try {
-      // İsteğe bağlı: loading animasyonu için minimum 3 sn göster
+      // Loading animasyonu için minimum 3 sn göster
       const [res] = await Promise.all([
         fetch("/api/analyze", {
           method: "POST",
@@ -34,13 +40,32 @@ export default function Home() {
         new Promise(r => setTimeout(r, 3000)),
       ]);
 
-      if (!res.ok) throw new Error(`API ${res.status}`);
+      if (!res.ok) {
+        // API'den dönen hata mesajını oku
+        let serverMessage = `Sunucu ${res.status} hatası döndürdü.`;
+        try {
+          const body = await res.json();
+          if (body.error) serverMessage = body.error;
+        } catch {
+          // JSON parse başarısız olursa default mesajla devam et
+        }
+        setErrorInfo({ statusCode: res.status, message: serverMessage });
+        setState("error");
+        return;
+      }
+
       const data: { analysis: Analysis } = await res.json();
       setAnalysis(data.analysis);
       setState("report");
     } catch (e) {
       console.error(e);
-      setError(e instanceof Error ? e.message : "Bilinmeyen hata");
+      // Network hatası (fetch başarısız)
+      setErrorInfo({
+        statusCode: 0,
+        message: e instanceof Error
+          ? "Sunucuya ulaşılamıyor. İnternet bağlantını kontrol et."
+          : "Bilinmeyen bir hata oluştu.",
+      });
       setState("error");
     }
   };
@@ -49,8 +74,14 @@ export default function Home() {
     setState("select");
     setSelectedProduct(null);
     setAnalysis(null);
-    setError(null);
+    setErrorInfo(null);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50);
+  };
+
+  const handleRetry = () => {
+    if (selectedProduct) {
+      handleAnalyze(selectedProduct);
+    }
   };
 
   return (
@@ -75,14 +106,14 @@ export default function Home() {
           />
         )}
 
-        {state === "error" && (
-          <div style={{ padding: "80px 0", textAlign: "center" }}>
-            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 28, marginBottom: 12 }}>
-              Bir sorun oluştu.
-            </h2>
-            <p style={{ color: "var(--ink-mute)", marginBottom: 24 }}>{error}</p>
-            <button className="btn-ghost" onClick={handleBack}>← Geri Dön</button>
-          </div>
+        {state === "error" && errorInfo && (
+          <ErrorState
+            product={selectedProduct}
+            statusCode={errorInfo.statusCode}
+            message={errorInfo.message}
+            onBack={handleBack}
+            onRetry={handleRetry}
+          />
         )}
 
         <Footer />

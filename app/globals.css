@@ -326,5 +326,22 @@ body::before {
   .hero h1 { font-size: 42px; }
 }
 
+/* ── Error ────────────────────────────────────────────────────────────────── */
+.error-wrap { min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 0; }
+.error-card { width: 100%; max-width: 480px; border: 0.5px solid var(--rule); padding: 40px 36px; background: var(--paper); position: relative; text-align: center; }
+.error-card-folio { position: absolute; top: -7px; left: 24px; background: var(--paper); padding: 0 10px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.error-icon { font-family: var(--font-serif); font-size: 48px; color: var(--accent); margin-bottom: 18px; line-height: 1; }
+.error-title { font-family: var(--font-serif); font-size: 26px; font-weight: 400; font-style: italic; letter-spacing: -0.01em; margin: 0 0 12px; color: var(--ink); }
+.error-message { font-family: var(--font-serif); font-size: 15px; line-height: 1.5; color: var(--ink-soft); margin: 0 0 24px; text-wrap: pretty; }
+.error-product { border: 0.5px solid var(--rule); padding: 14px 18px; margin-bottom: 24px; text-align: left; }
+.error-product span:first-child { font-family: var(--font-serif); font-size: 15px; color: var(--ink); display: block; margin-bottom: 4px; }
+.error-product-meta { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-mute); letter-spacing: 0.04em; text-transform: uppercase; }
+.error-countdown { margin-bottom: 24px; padding: 18px 0; border-top: 0.5px solid var(--rule); border-bottom: 0.5px solid var(--rule); }
+.error-countdown-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 6px; }
+.error-countdown-num { font-family: var(--font-serif); font-size: 36px; font-style: italic; color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.error-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+.error-help { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.02em; line-height: 1.5; padding-top: 18px; border-top: 0.5px solid var(--rule); }
+
 .fade-in { animation: rl-fade-in .5s ease both; }
 @keyframes rl-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
