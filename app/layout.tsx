@@ -23,6 +23,21 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   title: "ReturnLens — İade Riski Analiz Aracı",
   description: "Satın almadan önce ürünün iade riskini öğren. Yapay zeka ile ürün yorumlarını analiz eder.",
+  openGraph: {
+    title: "ReturnLens — İade Riski Analiz Aracı",
+    description: "Satın almadan önce ürünün iade riskini öğren. Yapay zeka ile ürün yorumlarını analiz eder.",
+    siteName: "ReturnLens",
+    locale: "tr_TR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ReturnLens",
+    description: "Satın almadan önce ürünün iade riskini öğren.",
+  },
+  icons: {
+    icon: "/icon.svg",
+  }
 };
 
 export default function RootLayout({
