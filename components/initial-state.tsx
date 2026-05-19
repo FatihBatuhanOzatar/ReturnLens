@@ -78,18 +78,46 @@ interface Props {
   products: Product[];
   onAnalyze: (p: Product) => void;
   onAnalyzeUrl?: (url: string) => void;
+  onAnalyzeImage?: (file: File) => void;
   history?: HistoryEntry[];
   onViewReport?: (entry: HistoryEntry) => void;
 }
 
-export function InitialState({ products, onAnalyze, onAnalyzeUrl, history = [], onViewReport }: Props) {
+export function InitialState({ products, onAnalyze, onAnalyzeUrl, onAnalyzeImage, history = [], onViewReport }: Props) {
   const [filter, setFilter] = useState<string>("all");
   const [url, setUrl] = useState<string>("");
+  const [inputMode, setInputMode] = useState<"screenshot" | "url">("screenshot");
+  const [dragOver, setDragOver] = useState(false);
+  const [previewName, setPreviewName] = useState<string | null>(null);
 
   const handleUrlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (url.trim() && onAnalyzeUrl) {
       onAnalyzeUrl(url.trim());
+    }
+  };
+
+  const handleFile = (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    setPreviewName(file.name);
+    if (onAnalyzeImage) onAnalyzeImage(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        const file = item.getAsFile();
+        if (file) handleFile(file);
+        break;
+      }
     }
   };
 
@@ -143,23 +171,77 @@ export function InitialState({ products, onAnalyze, onAnalyzeUrl, history = [], 
           </div>
         </div>
 
-        {onAnalyzeUrl && (
-          <form className="url-form" onSubmit={handleUrlSubmit}>
-            <input
-              type="url"
-              className="url-input"
-              placeholder="Trendyol ürün linkini yapıştır (ör: trendyol.com/.../urun-p-123)..."
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              required
-            />
-            <button type="submit" className="btn-primary url-submit">
-              Analiz Et
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </form>
+        {(onAnalyzeImage || onAnalyzeUrl) && (
+          <div className="input-section">
+            <div className="input-tabs">
+              <button
+                className={`input-tab ${inputMode === "screenshot" ? "active" : ""}`}
+                onClick={() => setInputMode("screenshot")}
+              >
+                Ekran Görüntüsü
+              </button>
+              <button
+                className={`input-tab ${inputMode === "url" ? "active" : ""}`}
+                onClick={() => setInputMode("url")}
+              >
+                URL
+              </button>
+            </div>
+
+            {inputMode === "screenshot" && onAnalyzeImage && (
+              <div
+                className={`drop-zone ${dragOver ? "drag-over" : ""}`}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+                onPaste={handlePaste}
+                tabIndex={0}
+                onClick={() => {
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.accept = "image/*";
+                  input.onchange = (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) handleFile(file);
+                  };
+                  input.click();
+                }}
+              >
+                <div className="drop-zone-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <path d="M21 15l-5-5L5 21" />
+                  </svg>
+                </div>
+                <div className="drop-zone-text">
+                  Yorumların ekran görüntüsünü <strong>sürükle</strong>, <strong>yapıştır</strong> veya <strong>tıkla</strong>
+                </div>
+                <div className="drop-zone-hint">
+                  Trendyol, Amazon, Hepsiburada -- herhangi bir site
+                </div>
+              </div>
+            )}
+
+            {inputMode === "url" && onAnalyzeUrl && (
+              <form className="url-form" onSubmit={handleUrlSubmit}>
+                <input
+                  type="url"
+                  className="url-input"
+                  placeholder="Trendyol ürün linkini yapıştır..."
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  required
+                />
+                <button type="submit" className="btn-primary url-submit">
+                  Analiz Et
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </form>
+            )}
+          </div>
         )}
       </section>
 

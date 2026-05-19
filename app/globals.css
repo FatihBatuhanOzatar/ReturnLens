@@ -122,11 +122,26 @@ body::before {
 .hero-step-t { font-family: var(--font-serif); font-size: 17px; font-style: italic; color: var(--ink); line-height: 1.25; }
 .hero-step-d { font-size: 13px; color: var(--ink-mute); margin-top: 4px; line-height: 1.4; }
 
-.url-form { grid-column: 1 / -1; margin-top: 24px; display: flex; gap: 12px; }
+.url-form { grid-column: 1 / -1; display: flex; gap: 12px; }
 .url-input { flex: 1; appearance: none; border: 0.5px solid var(--rule); background: var(--paper-deep); padding: 14px 18px; font-family: var(--font-sans); font-size: 15px; color: var(--ink); outline: none; transition: border-color .2s ease; border-radius: 0; }
 .url-input:focus { border-color: var(--accent); }
 .url-input::placeholder { color: var(--ink-faint); font-family: var(--font-serif); font-style: italic; }
 .url-submit { white-space: nowrap; }
+
+.input-section { grid-column: 1 / -1; margin-top: 32px; }
+.input-tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--rule); margin-bottom: 20px; }
+.input-tab { appearance: none; background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 20px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-mute); cursor: pointer; transition: all .2s ease; }
+.input-tab:hover { color: var(--ink); }
+.input-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.drop-zone { border: 1.5px dashed var(--rule); padding: 40px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: all .2s ease; background: var(--paper); }
+.drop-zone:hover, .drop-zone:focus-visible { border-color: var(--accent); background: var(--paper-deep); }
+.drop-zone.drag-over { border-color: var(--accent); background: oklch(0.95 0.02 15); border-style: solid; }
+.drop-zone-icon { color: var(--ink-faint); transition: color .2s ease; }
+.drop-zone:hover .drop-zone-icon { color: var(--accent); }
+.drop-zone-text { font-family: var(--font-sans); font-size: 14px; color: var(--ink-mute); text-align: center; line-height: 1.5; }
+.drop-zone-text strong { color: var(--ink); font-weight: 500; }
+.drop-zone-hint { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.04em; text-transform: uppercase; }
 
 /* ── History ──────────────────────────────────────────────────────────────── */
 .history-section { padding: 36px 0 0; border-bottom: 0.5px solid var(--rule); }
