@@ -55,7 +55,7 @@ export function NavBar() {
       <div className="nav-meta">
         <span><span className="dot"></span>v0.4 — Gemini engine</span>
         <span>İstanbul · {today}</span>
-        <span aria-label="github">⌥ github</span>
+        <a href="https://github.com/FatihBatuhanOzatar/ReturnLens" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "none" }}>⌥ github</a>
       </div>
     </nav>
   );
