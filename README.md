@@ -44,15 +44,6 @@ npm run dev
 
 Tarayicida `http://localhost:3000` adresini ac.
 
-### Mock modu
-
-Gemini API kotasi dolduysa veya anahtarin yoksa, `.env.local` dosyasina su satiri ekle:
-
-```
-USE_MOCK=true
-```
-
-Bu modda Gemini cagirilmaz, sahte analiz verisiyle tum arayuz test edilebilir.
 
 ## Teknoloji
 
@@ -85,7 +76,3 @@ lib/
 
 data/products/         6 ornek urun JSON dosyasi
 ```
-
-## Lisans
-
-MIT
