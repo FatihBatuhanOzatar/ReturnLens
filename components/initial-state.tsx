@@ -77,12 +77,21 @@ function riskColor(level: string): string {
 interface Props {
   products: Product[];
   onAnalyze: (p: Product) => void;
+  onAnalyzeUrl?: (url: string) => void;
   history?: HistoryEntry[];
   onViewReport?: (entry: HistoryEntry) => void;
 }
 
-export function InitialState({ products, onAnalyze, history = [], onViewReport }: Props) {
+export function InitialState({ products, onAnalyze, onAnalyzeUrl, history = [], onViewReport }: Props) {
   const [filter, setFilter] = useState<string>("all");
+  const [url, setUrl] = useState<string>("");
+
+  const handleUrlSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (url.trim() && onAnalyzeUrl) {
+      onAnalyzeUrl(url.trim());
+    }
+  };
 
   // marketplace listesini ürünlerden dinamik türet
   const marketplaces = Array.from(new Set(products.map(p => p.marketplace)));
@@ -133,6 +142,25 @@ export function InitialState({ products, onAnalyze, history = [], onViewReport }
             </div>
           </div>
         </div>
+
+        {onAnalyzeUrl && (
+          <form className="url-form" onSubmit={handleUrlSubmit}>
+            <input
+              type="url"
+              className="url-input"
+              placeholder="Trendyol ürün linkini yapıştır (ör: trendyol.com/.../urun-p-123)..."
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              required
+            />
+            <button type="submit" className="btn-primary url-submit">
+              Analiz Et
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </form>
+        )}
       </section>
 
       {history.length > 0 && onViewReport && (

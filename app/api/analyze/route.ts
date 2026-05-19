@@ -39,12 +39,56 @@ KURALLAR:
 - Yorum sayısı 15'ten azsa confidence 70'i geçmesin
 - Sadece JSON döndür, açıklama yapma`;
 
+// Mock modu: .env.local'a USE_MOCK=true ekle veya API key yoksa otomatik aktif olur
+const USE_MOCK = process.env.USE_MOCK === "true";
+
+function getMockAnalysis(rating: number | null): Analysis {
+  const r = rating ?? 3.0;
+  const score = Math.round(Math.max(10, Math.min(95, (5 - r) * 22 + 10)));
+  const level = score <= 33 ? "düşük" : score <= 66 ? "orta" : "yüksek";
+  return {
+    risk_score: score,
+    risk_level: level as Analysis["risk_level"],
+    confidence: 85,
+    summary: "Bu üründe iade riski " + level + " seviyededir. Yorumların önemli bir kısmı şarj alımı, tek kulaklık çalışması ve senkronizasyon problemlerine işaret ediyor. Pozitif yorumlar ses kalitesini ve tasarımı övse de, kullanım ömrü kısa sürede sorun çıkaran bir model olarak öne çıkıyor.",
+    recommendation: "Aynı fiyat bandında ses kalitesi yorumları yüksek, garantisi resmi distribütör üzerinden gelen alternatifleri değerlendirmenizi tavsiye ederiz.",
+    pros: ["Ses kalitesi fiyatına göre tatmin edici", "Hafif ve ergonomik tasarım", "Hızlı eşleşme — kutudan çıktığı gibi", "Kargo paketleme özenli"],
+    cons: ["Şarj yuvası belli süre sonra temas problemi yapıyor", "Sol kulaklık ayrı çalışıyor, çift kullanımda kesinti", "Batarya 6-8 ay sonra dramatik düşüyor", "Bas tepkisi düşük, müzik dinleme için zayıf"],
+    return_reasons: [
+      { text: "Şarj almama / kontak sorunu", pct: 38 },
+      { text: "Tek kulaklık eşleşme hatası", pct: 24 },
+      { text: "Ses kalitesi beklentinin altında", pct: 18 },
+      { text: "Mikrofon arızası", pct: 11 },
+      { text: "Diğer", pct: 9 },
+    ],
+    sentiment: { positive: 48, neutral: 14, negative: 38 },
+    fake_review_warning: true,
+    fake_review_details: "Yorumların yaklaşık %12'si benzer dilbilgisi yapısı ve yüklenme tarihi nedeniyle organik dışı olarak işaretlendi.",
+    category_risk_note: "Bluetooth kulaklık kategorisi genel olarak orta-yüksek iade oranına sahiptir; ortalama iade oranı %22 civarındadır.",
+  };
+}
+
 export async function POST(req: Request) {
   try {
-    const { productId } = await req.json();
-    const raw = getRawProductById(productId);
+    const { productId, rawProduct } = await req.json();
+    let raw = rawProduct;
+    
+    // Eğer dışarıdan scrape edilmiş ürün gelmediyse, lokal dosyadan ID ile ara
+    if (!raw && productId) {
+      raw = getRawProductById(productId);
+    }
+
     if (!raw) {
-      return NextResponse.json({ error: "Ürün bulunamadı" }, { status: 404 });
+      return NextResponse.json({ error: "Ürün bulunamadı veya geçerli bir veri sağlanmadı." }, { status: 404 });
+    }
+
+    // Mock modunda Gemini'ye gitmeden sahte veri döndür
+    if (USE_MOCK) {
+      const response: AnalyzeResponse = {
+        product: normalizeProduct(raw),
+        analysis: getMockAnalysis(raw.product_info.overall_rating),
+      };
+      return NextResponse.json(response);
     }
 
     const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
@@ -57,7 +101,7 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.0-flash",
       generationConfig: { responseMimeType: "application/json" },
     });
 
